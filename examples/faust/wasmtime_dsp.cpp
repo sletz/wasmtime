@@ -76,61 +76,60 @@ static void def(Linker& linker, const char* name, F&& func)
 void wasmtime_dsp_factory::registerMathFuns(Linker& linker)
 {
     // Integer
-    def(linker, "_abs", [](int32_t v) { return (int32_t)std::abs(v); });
+    def(linker, "_abs", static_cast<int32_t (*)(int32_t)>(std::abs));
 
     // Float unary
-    def(linker, "_acosf", [](float v) { return std::acosf(v); });
-    def(linker, "_asinf", [](float v) { return std::asinf(v); });
-    def(linker, "_atanf", [](float v) { return std::atanf(v); });
-    def(linker, "_cosf", [](float v) { return std::cosf(v); });
-    def(linker, "_expf", [](float v) { return std::expf(v); });
-    def(linker, "_logf", [](float v) { return std::logf(v); });
-    def(linker, "_log10f", [](float v) { return std::log10f(v); });
-    def(linker, "_roundf", [](float v) { return std::roundf(v); });
-    def(linker, "_sinf", [](float v) { return std::sinf(v); });
-    def(linker, "_tanf", [](float v) { return std::tanf(v); });
+    def(linker, "_acosf", static_cast<float (*)(float)>(std::acos));
+    def(linker, "_asinf", static_cast<float (*)(float)>(std::asin));
+    def(linker, "_atanf", static_cast<float (*)(float)>(std::atan));
+    def(linker, "_cosf", static_cast<float (*)(float)>(std::cos));
+    def(linker, "_expf", static_cast<float (*)(float)>(std::exp));
+    def(linker, "_logf", static_cast<float (*)(float)>(std::log));
+    def(linker, "_log10f", static_cast<float (*)(float)>(std::log10));
+    def(linker, "_roundf", static_cast<float (*)(float)>(std::round));
+    def(linker, "_sinf", static_cast<float (*)(float)>(std::sin));
+    def(linker, "_tanf", static_cast<float (*)(float)>(std::tan));
 
     // Float binary
-    def(linker, "_atan2f", [](float a, float b) { return std::atan2f(a, b); });
-    def(linker, "_fmodf", [](float a, float b) { return std::fmodf(a, b); });
-    def(linker, "_powf", [](float a, float b) { return std::powf(a, b); });
-    def(linker, "_remainderf", [](float a, float b) { return std::remainderf(a, b); });
+    def(linker, "_atan2f", static_cast<float (*)(float, float)>(std::atan2));
+    def(linker, "_fmodf", static_cast<float (*)(float, float)>(std::fmod));
+    def(linker, "_powf", static_cast<float (*)(float, float)>(std::pow));
+    def(linker, "_remainderf", static_cast<float (*)(float, float)>(std::remainder));
 
     // Hyperbolic float
-    def(linker, "_acoshf", [](float v) { return std::acoshf(v); });
-    def(linker, "_asinhf", [](float v) { return std::asinhf(v); });
-    def(linker, "_atanhf", [](float v) { return std::atanhf(v); });
-    def(linker, "_coshf", [](float v) { return std::coshf(v); });
-    def(linker, "_sinhf", [](float v) { return std::sinhf(v); });
-    def(linker, "_tanhf", [](float v) { return std::tanhf(v); });
+    def(linker, "_acoshf", static_cast<float (*)(float)>(std::acosh));
+    def(linker, "_asinhf", static_cast<float (*)(float)>(std::asinh));
+    def(linker, "_atanhf", static_cast<float (*)(float)>(std::atanh));
+    def(linker, "_coshf", static_cast<float (*)(float)>(std::cosh));
+    def(linker, "_sinhf", static_cast<float (*)(float)>(std::sinh));
+    def(linker, "_tanhf", static_cast<float (*)(float)>(std::tanh));
 
     // Double unary
-    def(linker, "_acos", [](double v) { return std::acos(v); });
-    def(linker, "_asin", [](double v) { return std::asin(v); });
-    def(linker, "_atan", [](double v) { return std::atan(v); });
-    def(linker, "_cos", [](double v) { return std::cos(v); });
-    def(linker, "_exp", [](double v) { return std::exp(v); });
-    def(linker, "_log", [](double v) { return std::log(v); });
-    def(linker, "_log10", [](double v) { return std::log10(v); });
-    def(linker, "_round", [](double v) { return std::round(v); });
-    def(linker, "_sin", [](double v) { return std::sin(v); });
-    def(linker, "_tan", [](double v) { return std::tan(v); });
+    def(linker, "_acos", static_cast<double (*)(double)>(std::acos));
+    def(linker, "_asin", static_cast<double (*)(double)>(std::asin));
+    def(linker, "_atan", static_cast<double (*)(double)>(std::atan));
+    def(linker, "_cos", static_cast<double (*)(double)>(std::cos));
+    def(linker, "_exp", static_cast<double (*)(double)>(std::exp));
+    def(linker, "_log", static_cast<double (*)(double)>(std::log));
+    def(linker, "_log10", static_cast<double (*)(double)>(std::log10));
+    def(linker, "_round", static_cast<double (*)(double)>(std::round));
+    def(linker, "_sin", static_cast<double (*)(double)>(std::sin));
+    def(linker, "_tan", static_cast<double (*)(double)>(std::tan));
 
     // Double binary
-    def(linker, "_atan2", [](double a, double b) { return std::atan2(a, b); });
-    def(linker, "_fmod", [](double a, double b) { return std::fmod(a, b); });
-    def(linker, "_pow", [](double a, double b) { return std::pow(a, b); });
-    def(linker, "_remainder", [](double a, double b) { return std::remainder(a, b); });
+    def(linker, "_atan2", static_cast<double (*)(double, double)>(std::atan2));
+    def(linker, "_fmod", static_cast<double (*)(double, double)>(std::fmod));
+    def(linker, "_pow", static_cast<double (*)(double, double)>(std::pow));
+    def(linker, "_remainder", static_cast<double (*)(double, double)>(std::remainder));
 
     // Hyperbolic double
-    def(linker, "_acosh", [](double v) { return std::acosh(v); });
-    def(linker, "_asinh", [](double v) { return std::asinh(v); });
-    def(linker, "_atanh", [](double v) { return std::atanh(v); });
-    def(linker, "_cosh", [](double v) { return std::cosh(v); });
-    def(linker, "_sinh", [](double v) { return std::sinh(v); });
-    def(linker, "_tanh", [](double v) { return std::tanh(v); });
+    def(linker, "_acosh", static_cast<double (*)(double)>(std::acosh));
+    def(linker, "_asinh", static_cast<double (*)(double)>(std::asinh));
+    def(linker, "_atanh", static_cast<double (*)(double)>(std::atanh));
+    def(linker, "_cosh", static_cast<double (*)(double)>(std::cosh));
+    def(linker, "_sinh", static_cast<double (*)(double)>(std::sinh));
+    def(linker, "_tanh", static_cast<double (*)(double)>(std::tanh));
 }
-
 wasmtime_dsp_factory::wasmtime_dsp_factory(const std::string& filename)
     : wasm_dsp_factory_imp(), fEngine()
 {
@@ -270,7 +269,7 @@ void wasmtime_dsp::compute(int count, FAUSTFLOAT** inputs, FAUSTFLOAT** outputs)
 {
     // Copy audio inputs into the shared linear memory
     for (int ch = 0; ch < fFactory->fDecoder->getNumInputs(); ++ch) {
-        std::memcpy(fInputs[ch], inputs[ch], sizeof(FAUSTFLOAT) * count);
+        memcpy(fInputs[ch], inputs[ch], sizeof(FAUSTFLOAT) * count);
     }
 
     // Call `compute` function
@@ -279,6 +278,6 @@ void wasmtime_dsp::compute(int count, FAUSTFLOAT** inputs, FAUSTFLOAT** outputs)
 
     // Copy from the shared linear memory into audio outputs
     for (int ch = 0; ch < fFactory->fDecoder->getNumOutputs(); ++ch) {
-        std::memcpy(outputs[ch], fOutputs[ch], sizeof(FAUSTFLOAT) * count);
+        memcpy(outputs[ch], fOutputs[ch], sizeof(FAUSTFLOAT) * count);
     }
 }
