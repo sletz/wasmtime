@@ -25,7 +25,13 @@
 // Adapted from original Wasmer-based implementation to use Wasmtime C++ API
 // (https://github.com/bytecodealliance/wasmtime)
 
+#define JACK 1
+
+#if JACK
 #include "faust/audio/jack-dsp.h"
+#else
+#include "faust/audio/dummy-audio.h"
+#endif
 #include "faust/gui/httpdUI.h"
 #include "faust/misc.h"
 #include "wasmtime_dsp.h"
@@ -46,7 +52,11 @@ int main(int argc, char* argv[])
     wasmtime_dsp_factory factory(argv[1]);
     dsp*                 DSP = factory.createDSPInstance();
 
+#if JACK
     jackaudio audio;
+#else
+    dummyaudio audio;
+#endif
     if (!audio.init(argv[1], DSP)) {
         return 0;
     }

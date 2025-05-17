@@ -192,14 +192,13 @@ wasmtime_dsp::wasmtime_dsp(wasmtime_dsp_factory* factory, std::unique_ptr<Store>
 
 wasmtime_dsp::~wasmtime_dsp() = default;
 
-// Macro to call simple exported int->int function with dsp index=0
-#define CALL_INT_EXPORT(name)                                           \
-    [&] {                                                               \
-        auto             ext    = fInstance.get(*fStore, name).value(); \
-        auto             func   = std::get<Func>(ext);                  \
-        std::vector<Val> params = {Val(int32_t(0))};                    \
-        auto             res    = unwrap(func.call(*fStore, params));   \
-        return res[0].i32();                                            \
+// Macro to call simple exported int->int function with dsp index = 0
+#define CALL_INT_EXPORT(name)                                      \
+    [&] {                                                          \
+        auto ext  = fInstance.get(*fStore, name).value();          \
+        auto func = std::get<Func>(ext);                           \
+        auto res  = unwrap(func.call(*fStore, {Val(int32_t(0))})); \
+        return res[0].i32();                                       \
     }()
 
 int wasmtime_dsp::getNumInputs()
@@ -233,27 +232,22 @@ void wasmtime_dsp::instanceClear()
 }
 
 // Functions taking sample_rate (i32, i32)
-static void call_sr(Func& func, Store& store, int sr)
-{
-    unwrap(func.call(store, {Val(int32_t(0)), Val(int32_t(sr))}));
-}
-
 void wasmtime_dsp::init(int sr)
 {
     auto func = std::get<Func>(fInstance.get(*fStore, "init").value());
-    call_sr(func, *fStore, sr);
+    unwrap(func.call(*fStore, {Val(int32_t(0)), Val(int32_t(sr))}));
 }
 
 void wasmtime_dsp::instanceInit(int sr)
 {
     auto func = std::get<Func>(fInstance.get(*fStore, "instanceInit").value());
-    call_sr(func, *fStore, sr);
+    unwrap(func.call(*fStore, {Val(int32_t(0)), Val(int32_t(sr))}));
 }
 
 void wasmtime_dsp::instanceConstants(int sr)
 {
     auto func = std::get<Func>(fInstance.get(*fStore, "instanceConstants").value());
-    call_sr(func, *fStore, sr);
+    unwrap(func.call(*fStore, {Val(int32_t(0)), Val(int32_t(sr))}));
 }
 
 wasmtime_dsp* wasmtime_dsp::clone()
