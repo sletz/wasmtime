@@ -23,7 +23,12 @@
 
 #include "faust/dsp/dsp-bench.h"
 #include "faust/misc.h"
+
+#ifdef WASMTIME_C
 #include "wasmtime_dsp.h"
+#else
+#include "wasmtime_dsp.hh"
+#endif
 
 using namespace std;
 
