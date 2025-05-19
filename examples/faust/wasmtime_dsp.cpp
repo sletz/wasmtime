@@ -26,7 +26,7 @@
 // Adapted from original Wasmer-based implementation to use Wasmtime C++ API
 // (https://github.com/bytecodealliance/wasmtime)
 
-#include "wasmtime_dsp.h"
+#include "wasmtime_dsp.hh"
 
 using namespace std;
 using namespace wasmtime;

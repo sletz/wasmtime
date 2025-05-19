@@ -22,9 +22,8 @@
  architecture section is not modified.
  ************************************************************************/
 
-/************************************************************************
-  Rewritten to use the Wasmtime **C** API (v15+) rather than the C++ API.
- ************************************************************************/
+// Adapted from original Wasmer-based implementation to use Wasmtime C++ API
+// (https://github.com/bytecodealliance/wasmtime)
 
 #ifndef __wasmtime_dsp__
 #define __wasmtime_dsp__
@@ -32,83 +31,76 @@
 #include <cassert>
 #include <cmath>
 #include <cstdint>
-#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include <wasm.h>
-#include <wasmtime.h>
+// Wasmtime single‑header C++ API
+#include "wasmtime.hh"
 
+// FAUST wasm helpers
 #include "faust/dsp/wasm-dsp-imp.h"
 
-/**
- * Forward declarations
- */
 struct wasmtime_dsp_factory;
 class wasmtime_dsp;
 
 /**
  * Factory able to compile a .wasm file produced by the FAUST compiler and
- * instantiate DSP objects running in the Wasmtime runtime (C‑API flavour).
+ * instantiate DSP objects running in the Wasmtime runtime.
  */
 struct wasmtime_dsp_factory : public wasm_dsp_factory_imp {
-    // Long‑lived objects shared by all DSP instances
-    wasm_engine_t*     fEngine    = nullptr;
-    wasmtime_linker_t* fLinker    = nullptr;
-    wasm_byte_vec_t    fWasmBytes = WASM_EMPTY_VEC;
-    wasmtime_module_t* fModule    = nullptr;
+    wasmtime::Engine                  fEngine;
+    std::unique_ptr<wasmtime::Store>  fStore;
+    std::unique_ptr<wasmtime::Linker> fLinker;
+    std::optional<wasmtime::Module>   fModule;
 
     explicit wasmtime_dsp_factory(const std::string& filename);
-    ~wasmtime_dsp_factory() override;
+    virtual ~wasmtime_dsp_factory();
 
-    dsp* createDSPInstance() override;
+    dsp* createDSPInstance();
 
-    /** Register the math functions that the FAUST‑generated WASM expects. */
-    static void registerMathFuns(wasmtime_linker_t* linker, wasmtime_store_t* store);
+    /** Register the math functions that the FAUST-generated module
+     *  expects to find in the "env" import namespace.
+     */
+    static void registerMathFuns(wasmtime::Linker& linker);
 };
 
 /**
- * Concrete DSP instance backed by a Wasmtime instance (C‑API flavour).
+ * Concrete DSP instance backed by a Wasmtime instance.
  */
 class wasmtime_dsp : public wasm_dsp_imp {
    private:
-    // One store per DSP instance (required for thread‑safety)
-    wasmtime_store_t*   fStore = nullptr;
-    wasmtime_instance_t fInstance{};
-    wasmtime_memory_t   fMemory{};
-    wasmtime_func_t     fComputeFunc{};
-    char*               fMemoryBase = nullptr;
+    std::unique_ptr<wasmtime::Store> fStore;
+    wasmtime::Instance               fInstance;
+    wasmtime::Memory                 fMemory;
 
-    /** Helper – call exported int(int) with dsp index = 0 */
-    int callIntExport(const char* name);
+    // Cached helpers
+    std::optional<wasmtime::Func> fComputeFunc;
 
    public:
-    wasmtime_dsp(wasmtime_dsp_factory* factory, wasmtime_store_t* store,
-                 const wasmtime_instance_t& instance, const wasmtime_memory_t& memory,
-                 char* memoryBase);
+    wasmtime_dsp(wasmtime_dsp_factory* factory, std::unique_ptr<wasmtime::Store> store,
+                 wasmtime::Instance instance, wasmtime::Memory memory, char* memoryBase);
 
     ~wasmtime_dsp() override;
 
-    // DSP meta‑data ----------------------------------------------------------------
     int getNumInputs() override;
     int getNumOutputs() override;
     int getSampleRate() override;
 
-    // Life‑cycle -------------------------------------------------------------------
     void init(int sample_rate) override;
     void instanceInit(int sample_rate) override;
     void instanceConstants(int sample_rate) override;
     void instanceResetUserInterface() override;
     void instanceClear() override;
 
-    wasmtime_dsp* clone() override;  // simple re‑instantiate
+    wasmtime_dsp* clone() override;  // not supported
 
-    // Audio processing -------------------------------------------------------------
     void compute(int count, FAUSTFLOAT** inputs, FAUSTFLOAT** outputs) override;
-    void compute(double date_usec, int count, FAUSTFLOAT** inputs, FAUSTFLOAT** outputs) override
+
+    void compute(double /*date_usec*/, int count, FAUSTFLOAT** inputs,
+                 FAUSTFLOAT** outputs) override
     {
         compute(count, inputs, outputs);
     }
